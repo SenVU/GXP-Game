@@ -1,0 +1,7 @@
+C:\Users\sen\Desktop\GIT\GXP-Game\GXPEngine\bin\Debug\GXPEngine.exe.config
+C:\Users\sen\Desktop\GIT\GXP-Game\GXPEngine\bin\Debug\GXPEngine.exe
+C:\Users\sen\Desktop\GIT\GXP-Game\GXPEngine\bin\Debug\GXPEngine.pdb
+C:\Users\sen\Desktop\GIT\GXP-Game\GXPEngine\obj\x86\Debug\GXPEngine.csproj.AssemblyReference.cache
+C:\Users\sen\Desktop\GIT\GXP-Game\GXPEngine\obj\x86\Debug\GXPEngine.csproj.CoreCompileInputs.cache
+C:\Users\sen\Desktop\GIT\GXP-Game\GXPEngine\obj\x86\Debug\GXPEngine.exe
+C:\Users\sen\Desktop\GIT\GXP-Game\GXPEngine\obj\x86\Debug\GXPEngine.pdb
