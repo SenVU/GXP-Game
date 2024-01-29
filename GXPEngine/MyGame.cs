@@ -6,23 +6,53 @@ using TiledMapParser;                           // System.Drawing contains drawi
 
 public class MyGame : Game
 {
-    //Level level = new Level("data/Tilemaps/testMap.xml", true,false,true);
-    Level level = new Level("lvl_one.tmx", false, false, false);
-    public MyGame() : base(800, 600, false, false, 800, 600, false)     // Create a window that's 800x600 and NOT fullscreen
+    Level currentLevel;
+    Level levelOne = new Level("lvl_one.tmx", false, false, false);
+
+    Sound coinCollectSound = new Sound("data/sound/coin.mp3");
+
+    Camera UICam;
+    EasyDraw coinCounter;
+
+    int coinsCollected = 0;
+
+    int coinsAtLevelStart = 0;
+    public MyGame() : base(768, 432, false, false, 1920, 1080, false)
     {
-        LoadScene(level);
+        currentLevel = levelOne;
+        targetFps = 1000;
+        CollisionManager.TriggersOnlyOnCollision = true;
+
+        LoadScene(currentLevel);
     }
 
-    // For every game object, Update is called every frame, by the engine:
     void Update()
     {
-
+        coinCounter.TextSize(10);
+        coinCounter.TextAlign(CenterMode.Min, CenterMode.Min);
+        coinCounter.Text("Coins: " + coinsCollected, true);
     }
 
-    static void Main()
+    public void reload()
     {
-        new MyGame().Start();
-        CollisionManager.TriggersOnlyOnCollision = true;
+        LoadScene(currentLevel);
+        coinsCollected = coinsAtLevelStart;
+    }
+
+    void LoadUI() 
+    {
+        UICam = new Camera(0,0, 200, 100,false);
+        coinCounter = new EasyDraw(200, 100, false);
+        AddChild(UICam);
+        AddChild(coinCounter);
+        UICam.SetXY(-100, -50);
+        coinCounter.SetXY(-200, -100);
+    }
+
+    public void CollectCoin()
+    {
+        coinsCollected++;
+        coinCollectSound.Play();
     }
 
     public void LoadScene(Level level)
@@ -30,9 +60,10 @@ public class MyGame : Game
         LoadScene(level.getFileName(), level.isLevelLoadLights(), level.isLevelLoadVignette(), level.isSetColors());
     }
 
-    // ___ LOADER TAKEN FROM LightsParticleDenoHandout ___ \\
+    // ___ LOADER TAKEN FROM LightsParticleDemoHandout ADN EDITED___ \\
     public void LoadScene(string filename, bool loadLights = true, bool loadVignette = true, bool setColors = true)
     {
+        UnloadScene();
         TiledLoader loader = new TiledLoader(filename);
         loader.autoInstance = true;
 
@@ -69,9 +100,8 @@ public class MyGame : Game
         loader.rootObject = mainlayer;
         loader.addColliders = true;
         loader.LoadTileLayers(0);
+        loader.LoadObjectGroups(0); // contains the player and other objects
         loader.addColliders = false;
-        loader.LoadObjectGroups(0); // contains the player
-        
 
         // lights:
         if (loadLights)
@@ -109,5 +139,21 @@ public class MyGame : Game
         {
             loader.LoadObjectGroups(3); // vignette (multiply)
         }
+        LoadUI();
+    }
+
+    void UnloadScene()
+    {
+        foreach(GameObject child in this.GetChildren())
+        {
+            child.LateDestroy();
+        }
+        
+    }
+
+
+    static void Main()
+    {
+        new MyGame().Start();
     }
 }

@@ -9,17 +9,14 @@ using TiledMapParser;
 
 public class Player : AnimationSprite
 {
-    Camera camera = new Camera(0,0,800,600);
+    Camera camera = new Camera(0,0, 768, 432);
 
-    bool firstRun = true;
+    Sound swapSound = new Sound("data/sound/swap.mp3");
 
-    float startX;
-    float startY;
-
-    float speed =4.6f;
-    float gravity = .25f;
-    float termVel = 5f;
-    float jumpPower = 4.2f;
+    float speed =.3f;
+    float gravity = .004f;
+    float termVel = 9.8f;
+    float jumpPower = .5f;
 
     float yVel = 0;
 
@@ -33,23 +30,19 @@ public class Player : AnimationSprite
 
     void Update()
     {
-        if (firstRun)
-        {
-            firstRun = false;
-            startX = x;
-            startY = y;
-        }
         float xMove = 0;
         if (Input.GetKey(Key.A))
         {
             xMove -= speed;
+            Mirror(true, false);
         }
         if (Input.GetKey(Key.D))
         {
             xMove += speed;
+            Mirror(false,false);
         }
-        yVel = Math.Min(yVel + gravity, termVel);
-        if (Input.GetKey(Key.W) && hasJumpCol())
+        yVel = Math.Min(yVel + gravity, HasJumpCol() ? 0.1f : termVel);
+        if (Input.GetKey (Key.W) && HasJumpCol())
         {
             yVel = -jumpPower;
         }
@@ -60,20 +53,34 @@ public class Player : AnimationSprite
             if (switchedWorld) { y -= 1600; }
             else { y += 1600; }
             switchedWorld = !switchedWorld;
+            swapSound.Play();
         }
-        MoveUntilCollision(xMove, 0);
-        MoveUntilCollision(0, yVel);
-        camera.x = Math.Max(x+80,400); camera.y = Math.Min(y, 1200 + (switchedWorld ? 1600 : 0));
+        MoveUntilCollision(xMove*Time.deltaTime, 0);
+        MoveUntilCollision(0, yVel*Time.deltaTime);
+        camera.x = Math.Max(x+80,400); camera.y = Math.Min(y, 1100 + (switchedWorld ? 1600 : 0));
 
         if (y > 1600 + (switchedWorld ? 1600 : 0))
         {
-            switchedWorld = false;
-            x = startX;
-            y = startY;
+            ((MyGame)(this.game)).reload();
         }
     }
 
-    bool hasJumpCol()
+    void OnCollision(GameObject obj)
+    {
+        CheckCoin(obj);
+    }
+
+    void CheckCoin(GameObject obj)
+    {
+        
+        if (obj is Coin)
+        {
+            ((MyGame)(this.game)).CollectCoin();
+            obj.LateDestroy();
+        }
+    }
+
+    bool HasJumpCol()
     {
         bool toReturn = false;
         y += 1f;
