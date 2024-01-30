@@ -1,4 +1,4 @@
-﻿using GXPEngine;
+using GXPEngine;
 using GXPEngine.Core;
 using System;
 using System.Collections.Generic;
@@ -39,7 +39,7 @@ public class Player : AnimationSprite
         if (Input.GetKey(Key.D))
         {
             xMove += speed;
-            Mirror(false,false);
+            Mirror(false, false);
         }
         yVel = Math.Min(yVel + gravity, HasJumpCol() ? 0.1f : termVel);
         if (Input.GetKey (Key.W) && HasJumpCol())
