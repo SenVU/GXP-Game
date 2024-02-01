@@ -2,51 +2,114 @@ using System;                                   // System contains a lot of defa
 using GXPEngine;                                // GXPEngine contains the engine
 using System.Drawing;
 using GXPEngine.Core;
-using TiledMapParser;                           // System.Drawing contains drawing tools such as Color definitions
+using TiledMapParser;
+using System.Collections.Generic;                           // System.Drawing contains drawing tools such as Color definitions
 
 public class MyGame : Game
 {
     Level currentLevel;
-    Level levelOne = new Level("lvl_one.tmx", false, false, false);
+    Level mainScreen = new Level(0, "mainscreen.tmx", true, false, false);
+    Level levelOne = new Level(1, "lvl_one.tmx", true, false, false);
+    Level levelTwo = new Level(2, "lvl_two.tmx", true, false, false);
+    Level endScreen = new Level(0, "endScreen.tmx", true, false, false);
+
+    List<Level> levelOrder = new List<Level>();
 
     Sound coinCollectSound = new Sound("data/sound/coin.mp3");
 
     Camera UICam;
-    EasyDraw coinCounter;
+    EasyDraw uiText;
 
     int coinsCollected = 0;
 
     int coinsAtLevelStart = 0;
-    public MyGame() : base(768, 432, false, false, 1920, 1080, false)
+
+    int swapsUsed = 0;
+
+    bool toReload = false;
+    bool toLoadNext = false;
+    public MyGame() : base(768, 432, false, false, 1920, 1080, true)
     {
-        currentLevel = levelOne;
         targetFps = 1000;
         CollisionManager.TriggersOnlyOnCollision = true;
+
+        levelOrder.Add(mainScreen);
+        levelOrder.Add(levelOne);
+        levelOrder.Add(levelTwo);
+        levelOrder.Add(endScreen);
+
+        currentLevel = levelOrder[0];
 
         LoadScene(currentLevel);
     }
 
     void Update()
     {
-        coinCounter.TextSize(10);
-        coinCounter.TextAlign(CenterMode.Min, CenterMode.Min);
-        coinCounter.Text("Coins: " + coinsCollected, true);
+        if (currentLevel.GetID() != 0)
+        {
+            uiText.TextSize(10);
+            uiText.TextAlign(CenterMode.Min, CenterMode.Min);
+            uiText.Text("Coins: " + coinsCollected +
+                        "\nSwaps: " + swapsUsed, true);
+        }
+
+        if (toReload)
+        {
+            Reload();
+            toReload = false;
+        }
+        if (toLoadNext)
+        {
+            LoadNextLevel();
+            toLoadNext = false;
+        }
     }
 
-    public void reload()
+    public void Reload()
     {
         LoadScene(currentLevel);
         coinsCollected = coinsAtLevelStart;
     }
 
+    public void LateReload()
+    {
+        toReload = true;
+    }
+
+    public void LateLoadNextLevel()
+    {
+        toLoadNext = true;
+    }
+
+    public void LoadNextLevel()
+    {
+        int i = 0;
+        foreach(Level level in levelOrder)
+        {
+            if (i+1==levelOrder.Count)
+            {
+                return;
+            }
+            if (currentLevel == level)
+            {
+                currentLevel = levelOrder[i + 1];
+                coinsAtLevelStart = coinsCollected;
+                Reload();
+                return;
+            }
+            i++;
+        }
+        
+    }
+
     void LoadUI() 
     {
         UICam = new Camera(0,0, 200, 100,false);
-        coinCounter = new EasyDraw(200, 100, false);
+        uiText = new EasyDraw(200, 100, false);
         AddChild(UICam);
-        AddChild(coinCounter);
+        AddChild(uiText);
         UICam.SetXY(-100, -50);
-        coinCounter.SetXY(-200, -100);
+        uiText.SetXY(-200, -100);
     }
 
     public void CollectCoin()
@@ -55,9 +118,16 @@ public class MyGame : Game
         coinCollectSound.Play();
     }
 
+    public void addUsedSwap()
+    {
+        if (currentLevel.GetID() != 0) { swapsUsed++; }
+    }
+    public Level getCurrentLevel() { return currentLevel; }
+
     public void LoadScene(Level level)
     {
-        LoadScene(level.getFileName(), level.isLevelLoadLights(), level.isLevelLoadVignette(), level.isSetColors());
+        LoadScene(level.GetFileName(), level.IsLevelLoadLights(), level.IsLevelLoadVignette(), level.IsSetColors());
+        if (level.GetID() != 0) { LoadUI(); }
     }
 
     // ___ LOADER TAKEN FROM LightsParticleDemoHandout ADN EDITED___ \\
@@ -139,7 +209,6 @@ public class MyGame : Game
         {
             loader.LoadObjectGroups(3); // vignette (multiply)
         }
-        LoadUI();
     }
 
     void UnloadScene()

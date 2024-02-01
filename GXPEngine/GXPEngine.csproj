@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Door.cs" />
+    <Compile Include="Spike.cs" />
     <Compile Include="Coin.cs" />
     <Compile Include="GXPEngine\AddOns\Gizmos.cs" />
     <Compile Include="GXPEngine\AddOns\SpriteBatch.cs" />
@@ -86,6 +88,7 @@
     <Compile Include="GXPEngine\SoLoud\Soloud.cs" />
     <Compile Include="GXPEngine\SoLoud\SoloudSoundSystem.cs" />
     <Compile Include="Player.cs" />
+    <Compile Include="StartButton.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
